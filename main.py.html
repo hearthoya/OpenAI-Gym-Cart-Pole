@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #808080;}
+.s3 { color: #6a8759;}
+.s4 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">random</span>
+<span class="s0">import </span><span class="s1">gym</span>
+<span class="s0">import </span><span class="s1">numpy </span><span class="s0">as </span><span class="s1">np</span>
+
+<span class="s0">from </span><span class="s1">keras.models </span><span class="s0">import </span><span class="s1">Sequential</span>
+<span class="s0">from </span><span class="s1">keras.layers </span><span class="s0">import </span><span class="s1">Dense</span><span class="s0">, </span><span class="s1">Flatten</span>
+<span class="s0">from </span><span class="s1">keras.optimizers </span><span class="s0">import </span><span class="s1">Adam</span>
+
+<span class="s0">from </span><span class="s1">rl.agents </span><span class="s0">import </span><span class="s1">DQNAgent</span>
+<span class="s0">from </span><span class="s1">rl.policy </span><span class="s0">import </span><span class="s1">BoltzmannQPolicy</span>
+<span class="s0">from </span><span class="s1">rl.memory </span><span class="s0">import </span><span class="s1">SequentialMemory</span>
+
+<span class="s2"># create env and render so we can see it</span>
+<span class="s1">env = gym.make(</span><span class="s3">&quot;CartPole-v1&quot;</span><span class="s1">)</span>
+<span class="s2"># look at states by checking the space/env</span>
+<span class="s1">states = env.observation_space.shape[</span><span class="s4">0</span><span class="s1">]</span>
+<span class="s1">actions = env.action_space.n</span>
+<span class="s2"># you can play with this stuff, underlying model/nn structure</span>
+<span class="s1">model = Sequential()</span>
+<span class="s1">model.add(Flatten(input_shape=(</span><span class="s4">1</span><span class="s0">, </span><span class="s1">states)))</span>
+<span class="s1">model.add(Dense(</span><span class="s4">24</span><span class="s0">, </span><span class="s1">activation=</span><span class="s3">&quot;relu&quot;</span><span class="s1">))</span>
+<span class="s1">model.add(Dense(</span><span class="s4">24</span><span class="s0">, </span><span class="s1">activation=</span><span class="s3">&quot;relu&quot;</span><span class="s1">))</span>
+<span class="s1">model.add(Dense(actions</span><span class="s0">, </span><span class="s1">activation=</span><span class="s3">&quot;linear&quot;</span><span class="s1">))</span>
+<span class="s2"># set agent</span>
+<span class="s1">agent = DQNAgent(</span>
+    <span class="s1">model=model</span><span class="s0">,</span>
+    <span class="s1">memory=SequentialMemory(limit=</span><span class="s4">50000</span><span class="s0">, </span><span class="s1">window_length=</span><span class="s4">1</span><span class="s1">)</span><span class="s0">,</span>
+    <span class="s1">policy=BoltzmannQPolicy()</span><span class="s0">,</span>
+    <span class="s1">nb_actions=actions</span><span class="s0">,</span>
+    <span class="s1">nb_steps_warmup=</span><span class="s4">10</span><span class="s0">,</span>
+    <span class="s1">target_model_update=</span><span class="s4">0.01</span>
+<span class="s1">)</span>
+<span class="s2"># compile and fit agent</span>
+<span class="s1">agent.compile(Adam(lr=</span><span class="s4">0.001</span><span class="s1">)</span><span class="s0">, </span><span class="s1">metrics=[</span><span class="s3">&quot;mae&quot;</span><span class="s1">])</span>
+<span class="s1">agent.fit(env</span><span class="s0">, </span><span class="s1">nb_steps=</span><span class="s4">100000</span><span class="s0">, </span><span class="s1">visualize=</span><span class="s0">False, </span><span class="s1">verbose=</span><span class="s0">True</span><span class="s1">)</span>
+<span class="s2"># visualize the results</span>
+<span class="s1">results = agent.test(env</span><span class="s0">, </span><span class="s1">nb_episodes=</span><span class="s4">10</span><span class="s0">, </span><span class="s1">visualize=</span><span class="s0">True</span><span class="s1">)</span>
+<span class="s1">print(np.mean(results.hisotry[</span><span class="s3">&quot;episode_reward&quot;</span><span class="s1">]))</span>
+
+<span class="s1">env.close()</span>
+</pre>
+</body>
+</html>
